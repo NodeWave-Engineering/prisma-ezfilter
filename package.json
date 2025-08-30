@@ -1,6 +1,6 @@
 {
     "name": "@nodewave/prisma-ezfilter",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "A TypeScript package for building dynamic Prisma queries with type-safe filtering, searching, ordering, and range filtering with support for multi-level nested relations",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
