@@ -5,8 +5,7 @@ export { BuildQueryFilter } from './BuildQueryFilter';
 // Type exports
 export type {
     BuildQueryResult, FieldMappings,
-    FieldNameMappings, FieldTypeHandler, FilteringQuery, OrderDirection,
-    PrismaOperator, PrismaOrderBy, PrismaQueryOptions,
+    FieldNameMappings, FieldTypeHandler, FilteringQuery, OrderDirection, PaginatedResult, PrismaOperator, PrismaOrderBy, PrismaQueryOptions,
     PrismaWhereCondition, QueryExtractor, QueryParams, QuerySpecification, RangedFilter, RelationHandler, TransformConfig, ValidationResult
 } from './types';
 
