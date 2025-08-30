@@ -16,6 +16,8 @@ export function buildFilterQuery(filter: FilteringQuery): PrismaQueryOptions {
             AND: [],
         },
         orderBy: {},
+        take: 10,
+        skip: 0,
     };
 
     // Build where conditions

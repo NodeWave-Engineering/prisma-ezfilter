@@ -44,10 +44,10 @@ export interface PrismaOrderBy {
 }
 
 export interface PrismaQueryOptions {
-    where?: PrismaWhereCondition;
+    where: PrismaWhereCondition;
     orderBy?: PrismaOrderBy | PrismaOrderBy[];
-    take?: number;
-    skip?: number;
+    take: number;
+    skip: number;
     include?: Record<string, any>;
     select?: Record<string, any>;
 }
