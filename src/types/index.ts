@@ -109,3 +109,9 @@ export interface QueryParams {
 export interface QueryExtractor {
     getQueryParams(): QueryParams;
 }
+
+export interface PaginatedResult<T> {
+    entries: T
+    totalData: number
+    totalPage: number
+}
