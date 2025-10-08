@@ -7,7 +7,7 @@ A TypeScript package for building dynamic Prisma queries with type-safe filterin
 - 🎯 **Type-safe query building** with full TypeScript support
 - 🔍 **Dynamic filtering** with support for exact matches, arrays, and relational data
 - 🔗 **Multi-level nested relations** - handle deeply nested fields like `author.profile.address.city`
-- 🔎 **Search functionality** with `contains` operator and multi-field search
+- 🔎 **Search functionality** with `contains` operator, multi-field search, and **case-sensitive/insensitive modes**
 - 📊 **Range filtering** for dates and numbers with automatic date parsing
 - 📝 **Ordering** with customizable sort directions
 - 📄 **Pagination** with configurable page sizes
@@ -192,6 +192,7 @@ interface QuerySpecification {
   defaultPageSize?: number;
   requiredFields?: string[];
   forbiddenFields?: string[];
+  defaultSearchMode?: 'insensitive' | 'sensitive'; // NEW: Global search mode setting
 }
 ```
 
@@ -293,6 +294,108 @@ const filter = {
 //   AND (author.profile.department.region = 'US' OR author.profile.department.region = 'EU')
 //   AND (company.departments.teams.members.profile.skills = 'React' OR company.departments.teams.members.profile.skills = 'TypeScript')
 ```
+
+### Case-Sensitive Search
+
+The query builder supports both case-sensitive and case-insensitive search modes. By default, all searches are case-insensitive for better user experience.
+
+#### Global Case-Sensitive Search
+
+```typescript
+const specification: QuerySpecification = {
+  allowedFields: ['name', 'email', 'title', 'content'],
+  allowedRelations: ['author', 'profile'],
+  defaultSearchMode: 'sensitive' // Enable case-sensitive search globally
+};
+
+const queryBuilder = new BuildQueryFilter(specification);
+
+const filter = {
+  searchFilters: {
+    name: 'John', // Will only match exact case
+    email: 'john@example.com', // Will only match exact case
+    'author.profile.bio': 'Software Engineer' // Will only match exact case
+  }
+};
+
+// Generated Prisma query:
+// {
+//   where: {
+//     AND: [
+//       {
+//         OR: [
+//           { name: { contains: 'John', mode: 'sensitive' } },
+//           { email: { contains: 'john@example.com', mode: 'sensitive' } },
+//           { author: { profile: { bio: { contains: 'Software Engineer', mode: 'sensitive' } } } }
+//         ]
+//       }
+//     ]
+//   }
+// }
+```
+
+#### Field-Specific Case Sensitivity
+
+```typescript
+const specification: QuerySpecification = {
+  allowedFields: ['name', 'email', 'title', 'content'],
+  allowedRelations: ['author', 'profile'],
+  defaultSearchMode: 'insensitive' // Default to case-insensitive
+};
+
+const transformConfig: TransformConfig = {
+  fieldMappings: {},
+  fieldTypeHandlers: {
+    name: {
+      type: 'string',
+      searchOperator: 'contains',
+      searchMode: 'sensitive' // Case-sensitive for names
+    },
+    email: {
+      type: 'string',
+      searchOperator: 'contains',
+      searchMode: 'sensitive' // Case-sensitive for emails
+    },
+    'author.profile.bio': {
+      type: 'string',
+      searchOperator: 'contains',
+      searchMode: 'insensitive' // Case-insensitive for bio
+    },
+    title: {
+      type: 'string',
+      searchOperator: 'contains',
+      searchMode: 'insensitive' // Case-insensitive for titles
+    }
+  }
+};
+
+const queryBuilder = new BuildQueryFilter(specification, transformConfig);
+
+const filter = {
+  searchFilters: {
+    name: 'John', // Case-sensitive
+    email: 'john@example.com', // Case-sensitive
+    'author.profile.bio': 'software engineer', // Case-insensitive
+    title: 'react tutorial' // Case-insensitive
+  }
+};
+```
+
+#### Best Practices for Case Sensitivity
+
+**Use Case-Sensitive Search For:**
+- Email addresses
+- Usernames
+- Exact identifiers
+- Code/technical terms
+- Database keys
+
+**Use Case-Insensitive Search For:**
+- User search queries
+- Content descriptions
+- General text search
+- User-friendly interfaces
+- Search suggestions
 
 ### Framework Integration
 
