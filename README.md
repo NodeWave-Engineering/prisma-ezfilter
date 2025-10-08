@@ -720,19 +720,126 @@ Run tests with:
 npm test
 ```
 
+## Complete Type Definitions
+
+### Core Interfaces
+
+#### `FilteringQuery`
+```typescript
+interface FilteringQuery {
+  filters?: Record<string, any | any[] | null>;
+  searchFilters?: Record<string, any | any[] | null>;
+  rangedFilters?: RangedFilter[];
+  orderKey?: string;
+  orderRule?: OrderDirection;
+  page?: number;
+  rows?: number;
+}
+```
+
+#### `RangedFilter`
+```typescript
+interface RangedFilter {
+  key: string;
+  start: string | number | Date;
+  end: string | number | Date;
+}
+```
+
+#### `QuerySpecification`
+```typescript
+interface QuerySpecification {
+  allowedFields?: string[];
+  allowedOperators?: PrismaOperator[];
+  allowedRelations?: string[];
+  maxPageSize?: number;
+  defaultPageSize?: number;
+  requiredFields?: string[];
+  forbiddenFields?: string[];
+  defaultSearchMode?: 'insensitive' | 'sensitive'; // Global search mode setting
+}
+```
+
+#### `TransformConfig`
+```typescript
+interface TransformConfig {
+  fieldMappings: Record<string, string>;
+  fieldNameMappings?: Record<string, string>;
+  fieldTypeHandlers?: Record<string, FieldTypeHandler>;
+  relationHandlers?: Record<string, RelationHandler>;
+}
+```
+
+#### `FieldTypeHandler`
+```typescript
+interface FieldTypeHandler {
+  type: 'string' | 'number' | 'boolean' | 'date' | 'custom';
+  searchOperator?: PrismaOperator;
+  searchMode?: 'insensitive' | 'sensitive'; // Field-specific search mode
+  customHandler?: (value: any) => any;
+}
+```
+
+#### `RelationHandler`
+```typescript
+interface RelationHandler {
+  type: 'one-to-many' | 'many-to-many' | 'one-to-one';
+  relationQuery: 'some' | 'every' | 'none';
+  nestedField?: string;
+  customHandler?: (value: any, actualField: string) => any;
+}
+```
+
+#### `PrismaOperator`
+```typescript
+type PrismaOperator =
+  | 'equals'
+  | 'not'
+  | 'in'
+  | 'notIn'
+  | 'lt'
+  | 'lte'
+  | 'gt'
+  | 'gte'
+  | 'contains'
+  | 'startsWith'
+  | 'endsWith'
+  | 'mode'
+  | 'search';
+```
+
+#### `BuildQueryResult`
+```typescript
+interface BuildQueryResult {
+  query: PrismaQueryOptions;
+  validation: ValidationResult;
+}
+```
+
+#### `ValidationResult`
+```typescript
+interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+}
+```
+
 ## Migration from v0.1.0
 
 If you're upgrading from the previous version:
 
 1. **Package name changed**: `prisma-ezfilter` → `@nodewave/prisma-ezfilter`
 2. **New feature**: Multi-level relations are now supported (previously only single-level)
-3. **Enhanced validation**: Better support for validating nested relations
-4. **Improved types**: Better TypeScript support for nested objects
+3. **New feature**: Case-sensitive/insensitive search modes are now supported
+4. **Enhanced validation**: Better support for validating nested relations
+5. **Improved types**: Better TypeScript support for nested objects
 
 ### Breaking Changes
 
 - None - all existing functionality remains the same
 - Multi-level relations are additive and don't affect existing single-level queries
+- Case-sensitive search is backward compatible - existing searches remain case-insensitive by default
 
 ## Contributing
 

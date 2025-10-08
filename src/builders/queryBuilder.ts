@@ -152,12 +152,23 @@ function buildSearchQuery(searchFilters: Record<string, any | any[] | null>, spe
         if (key.includes('.')) {
             searchQuery = buildNestedSearch(key, value, searchMode);
         } else {
-            searchQuery = {
-                [key]: {
-                    contains: value,
-                    mode: searchMode,
-                },
-            };
+            // Handle arrays in search filters - create OR conditions for multiple keywords
+            if (Array.isArray(value)) {
+                const orQueryArray = value.map((keyword) => ({
+                    [key]: {
+                        contains: keyword,
+                        mode: searchMode,
+                    },
+                }));
+                searchQuery = { OR: orQueryArray };
+            } else {
+                searchQuery = {
+                    [key]: {
+                        contains: value,
+                        mode: searchMode,
+                    },
+                };
+            }
         }
 
         if (isMultiKey) {
@@ -181,11 +192,33 @@ function buildSearchQuery(searchFilters: Record<string, any | any[] | null>, spe
  */
 function buildNestedSearch(key: string, value: any, searchMode: 'insensitive' | 'sensitive' = 'insensitive'): PrismaWhereCondition {
     if (!key.includes('.')) {
+        // Handle arrays in search filters for single-level fields
+        if (Array.isArray(value)) {
+            const orQueryArray = value.map((keyword) => ({
+                [key]: { contains: keyword, mode: searchMode }
+            }));
+            return { OR: orQueryArray };
+        }
         return { [key]: { contains: value, mode: searchMode } };
     }
 
     const parts = key.split('.');
     const lastPart = parts.pop()!;
+
+    // Handle arrays in search filters for multi-level fields
+    if (Array.isArray(value)) {
+        const orQueryArray = value.map((keyword) => {
+            let current: PrismaWhereCondition = { [lastPart]: { contains: keyword, mode: searchMode } };
+
+            // Build from right to left
+            for (let i = parts.length - 1; i >= 0; i--) {
+                current = { [parts[i]]: current };
+            }
+
+            return current;
+        });
+        return { OR: orQueryArray };
+    }
 
     let current: PrismaWhereCondition = { [lastPart]: { contains: value, mode: searchMode } };
 
