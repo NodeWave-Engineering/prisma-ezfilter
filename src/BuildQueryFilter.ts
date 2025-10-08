@@ -29,7 +29,7 @@ export class BuildQueryFilter {
         const validation = validateQuery(filter, this.specification);
 
         // Build the base query
-        let query = buildFilterQuery(filter);
+        let query = buildFilterQuery(filter, this.specification);
 
         // Apply transformations if config is provided
         if (this.transformConfig && query.where) {
@@ -50,7 +50,7 @@ export class BuildQueryFilter {
      * Builds a query without validation
      */
     buildWithoutValidation(filter: FilteringQuery): PrismaQueryOptions {
-        let query = buildFilterQuery(filter);
+        let query = buildFilterQuery(filter, this.specification);
 
         if (this.transformConfig && query.where) {
             query.where = transformWhereClause(query.where, this.transformConfig);

@@ -63,6 +63,7 @@ export interface FieldNameMappings {
 export interface FieldTypeHandler {
     type: 'string' | 'number' | 'boolean' | 'date' | 'custom';
     searchOperator?: PrismaOperator;
+    searchMode?: 'insensitive' | 'sensitive';
     customHandler?: (value: any) => any;
 }
 
@@ -88,6 +89,7 @@ export interface QuerySpecification {
     defaultPageSize?: number;
     requiredFields?: string[];
     forbiddenFields?: string[];
+    defaultSearchMode?: 'insensitive' | 'sensitive';
 }
 
 export interface ValidationResult {

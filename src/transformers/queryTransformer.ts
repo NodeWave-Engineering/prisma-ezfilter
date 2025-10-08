@@ -216,7 +216,9 @@ function processFieldValue(value: any, typeHandler?: FieldTypeHandler): any {
             return { [typeHandler.searchOperator || 'equals']: dateValue };
 
         case 'string':
-            return { [typeHandler.searchOperator || 'contains']: rawValue };
+            const searchOperator = typeHandler.searchOperator || 'contains';
+            const searchMode = typeHandler.searchMode || 'insensitive';
+            return { [searchOperator]: rawValue, mode: searchMode };
 
         default:
             return { equals: rawValue };

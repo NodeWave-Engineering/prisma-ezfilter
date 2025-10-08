@@ -4,13 +4,14 @@ import {
     PrismaOrderBy,
     PrismaQueryOptions,
     PrismaWhereCondition,
-    RangedFilter
+    RangedFilter,
+    QuerySpecification
 } from '../types';
 
 /**
  * Builds a Prisma query from filtering parameters
  */
-export function buildFilterQuery(filter: FilteringQuery): PrismaQueryOptions {
+export function buildFilterQuery(filter: FilteringQuery, specification?: QuerySpecification): PrismaQueryOptions {
     const query: PrismaQueryOptions = {
         where: {
             AND: [],
@@ -27,7 +28,7 @@ export function buildFilterQuery(filter: FilteringQuery): PrismaQueryOptions {
     }
 
     if (filter.searchFilters) {
-        const searchConditions = buildSearchQuery(filter.searchFilters);
+        const searchConditions = buildSearchQuery(filter.searchFilters, specification);
         query.where!['AND'] = [...(query.where!['AND'] as any[]), ...searchConditions];
     }
 
@@ -135,7 +136,7 @@ function buildNestedWhere(key: string, value: any): PrismaWhereCondition {
 /**
  * Builds search conditions from search filters with multi-level relation support
  */
-function buildSearchQuery(searchFilters: Record<string, any | any[] | null>): PrismaWhereCondition[] {
+function buildSearchQuery(searchFilters: Record<string, any | any[] | null>, specification?: QuerySpecification): PrismaWhereCondition[] {
     const whereConditions: PrismaWhereCondition[] = [];
     const orQuerySearchArray: PrismaWhereCondition[] = [];
 
@@ -146,12 +147,15 @@ function buildSearchQuery(searchFilters: Record<string, any | any[] | null>): Pr
 
         let searchQuery: PrismaWhereCondition = {};
 
+        const searchMode = specification?.defaultSearchMode || 'insensitive';
+        
         if (key.includes('.')) {
-            searchQuery = buildNestedSearch(key, value);
+            searchQuery = buildNestedSearch(key, value, searchMode);
         } else {
             searchQuery = {
                 [key]: {
                     contains: value,
+                    mode: searchMode,
                 },
             };
         }
@@ -175,15 +179,15 @@ function buildSearchQuery(searchFilters: Record<string, any | any[] | null>): Pr
 /**
  * Builds nested search condition for multi-level relations
  */
-function buildNestedSearch(key: string, value: any): PrismaWhereCondition {
+function buildNestedSearch(key: string, value: any, searchMode: 'insensitive' | 'sensitive' = 'insensitive'): PrismaWhereCondition {
     if (!key.includes('.')) {
-        return { [key]: { contains: value } };
+        return { [key]: { contains: value, mode: searchMode } };
     }
 
     const parts = key.split('.');
     const lastPart = parts.pop()!;
 
-    let current: PrismaWhereCondition = { [lastPart]: { contains: value } };
+    let current: PrismaWhereCondition = { [lastPart]: { contains: value, mode: searchMode } };
 
     // Build from right to left
     for (let i = parts.length - 1; i >= 0; i--) {
