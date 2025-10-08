@@ -7,7 +7,7 @@ A TypeScript package for building dynamic Prisma queries with type-safe filterin
 - 🎯 **Type-safe query building** with full TypeScript support
 - 🔍 **Dynamic filtering** with support for exact matches, arrays, and relational data
 - 🔗 **Multi-level nested relations** - handle deeply nested fields like `author.profile.address.city`
-- 🔎 **Search functionality** with `contains` operator, multi-field search, and **case-sensitive/insensitive modes**
+- 🔎 **Search functionality** with `contains` operator, multi-field search, **case-sensitive/insensitive modes**, and **multiple keywords support**
 - 📊 **Range filtering** for dates and numbers with automatic date parsing
 - 📝 **Ordering** with customizable sort directions
 - 📄 **Pagination** with configurable page sizes
