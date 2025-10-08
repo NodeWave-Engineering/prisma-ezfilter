@@ -4,8 +4,8 @@ import {
     PrismaOrderBy,
     PrismaQueryOptions,
     PrismaWhereCondition,
-    RangedFilter,
-    QuerySpecification
+    QuerySpecification,
+    RangedFilter
 } from '../types';
 
 /**
@@ -148,7 +148,7 @@ function buildSearchQuery(searchFilters: Record<string, any | any[] | null>, spe
         let searchQuery: PrismaWhereCondition = {};
 
         const searchMode = specification?.defaultSearchMode || 'insensitive';
-        
+
         if (key.includes('.')) {
             searchQuery = buildNestedSearch(key, value, searchMode);
         } else {
